@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="mdx.cpp" />
+    <ClCompile Include="mdx_window.cpp" />
+    <ClCompile Include="mdx_app.cpp" />
+    <ClCompile Include="mdx_gfx.cpp" />
+    <ClCompile Include="mdx_exception.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="mdx.h" />
+    <ClInclude Include="mdx_window.h" />
+    <ClInclude Include="mdx_app.h" />
+    <ClInclude Include="mdx_gfx.h" />
+    <ClInclude Include="mdx_types.h" />
+    <ClInclude Include="mdx_exception.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+</Project>
