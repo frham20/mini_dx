@@ -1,5 +1,5 @@
 #include "mdx.h"
-#include "mdx_window.h"
+#include "window.h"
 
 namespace mdx
 {

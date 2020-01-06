@@ -1,5 +1,5 @@
 #include "mdx.h"
-#include "mdx_exception.h"
+#include "exception.h"
 
 namespace mdx
 {

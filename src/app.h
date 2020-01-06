@@ -1,6 +1,6 @@
 #pragma once
-#include "mdx_window.h"
-#include "mdx_gfx.h"
+#include "mdx\window.h"
+#include "mdx\gfx.h"
 
 namespace mdx
 {

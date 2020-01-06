@@ -2,18 +2,18 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="mdx.cpp" />
-    <ClCompile Include="mdx_window.cpp" />
-    <ClCompile Include="mdx_app.cpp" />
-    <ClCompile Include="mdx_gfx.cpp" />
-    <ClCompile Include="mdx_exception.cpp" />
+    <ClCompile Include="app.cpp" />
+    <ClCompile Include="exception.cpp" />
+    <ClCompile Include="gfx.cpp" />
+    <ClCompile Include="window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mdx.h" />
-    <ClInclude Include="mdx_window.h" />
-    <ClInclude Include="mdx_app.h" />
-    <ClInclude Include="mdx_gfx.h" />
-    <ClInclude Include="mdx_types.h" />
-    <ClInclude Include="mdx_exception.h" />
+    <ClInclude Include="app.h" />
+    <ClInclude Include="exception.h" />
+    <ClInclude Include="gfx.h" />
+    <ClInclude Include="types.h" />
+    <ClInclude Include="window.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

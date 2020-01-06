@@ -1,6 +1,6 @@
 #include "mdx.h"
-#include "mdx_gfx.h"
-#include "mdx_app.h"
+#include "gfx.h"
+#include "app.h"
 
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3d12.lib")

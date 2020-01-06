@@ -31,6 +31,6 @@
 //for PIX support
 #include <pix3.h>
 
-#include "mdx_types.h"
-#include "mdx_exception.h"
+#include "mdx\types.h"
+#include "mdx\exception.h"
 
