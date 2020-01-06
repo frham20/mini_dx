@@ -1,4 +1,5 @@
-#include "mdx.h"
+#include "platform.h"
+#include "core.h"
 #include "app.h"
 #include <shellapi.h>
 

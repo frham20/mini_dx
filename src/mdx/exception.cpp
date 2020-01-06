@@ -1,4 +1,4 @@
-#include "mdx.h"
+#include "platform.h"
 #include "exception.h"
 
 namespace mdx

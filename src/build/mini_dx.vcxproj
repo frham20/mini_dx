@@ -10,6 +10,31 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\mdx\app.cpp" />
+    <ClCompile Include="..\mdx\exception.cpp" />
+    <ClCompile Include="..\mdx\gfx.cpp" />
+    <ClCompile Include="..\mdx\window.cpp" />
+    <ClCompile Include="mdx_pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">mdx_pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">mdx_pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\mdx\app.h" />
+    <ClInclude Include="..\mdx\core.h" />
+    <ClInclude Include="..\mdx\exception.h" />
+    <ClInclude Include="..\mdx\gfx.h" />
+    <ClInclude Include="..\mdx\platform.h" />
+    <ClInclude Include="..\mdx\types.h" />
+    <ClInclude Include="..\mdx\window.h" />
+    <ClInclude Include="mdx_pch.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <ProjectGuid>{93BD4484-A94C-41CB-87D7-6CF109454EF3}</ProjectGuid>
@@ -55,7 +80,10 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>mdx.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>mdx_pch.h</PrecompiledHeaderFile>
+      <ForcedIncludeFiles>mdx_pch.h</ForcedIncludeFiles>
+      <AdditionalIncludeDirectories>$(SolutionDir)..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -71,7 +99,10 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>mdx.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>mdx_pch.h</PrecompiledHeaderFile>
+      <ForcedIncludeFiles>mdx_pch.h</ForcedIncludeFiles>
+      <AdditionalIncludeDirectories>$(SolutionDir)..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -80,29 +111,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="app.cpp" />
-    <ClCompile Include="exception.cpp" />
-    <ClCompile Include="mdx.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">mdx.h</PrecompiledHeaderFile>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">mdx.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="gfx.cpp" />
-    <ClCompile Include="window.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="mdx.h" />
-    <ClInclude Include="app.h" />
-    <ClInclude Include="exception.h" />
-    <ClInclude Include="gfx.h" />
-    <ClInclude Include="types.h" />
-    <ClInclude Include="window.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="packages\WinPixEventRuntime.1.0.190604001\build\WinPixEventRuntime.targets" Condition="Exists('packages\WinPixEventRuntime.1.0.190604001\build\WinPixEventRuntime.targets')" />

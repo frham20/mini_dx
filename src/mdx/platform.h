@@ -29,8 +29,8 @@
 #include <dxgi1_6.h>
 
 //for PIX support
+#pragma warning(push)
+//warning C4365 : 'return' : conversion from 'LONGLONG' to 'UINT64', signed / unsigned mismatch
+#pragma warning(disable: 4365)
 #include <pix3.h>
-
-#include "mdx\types.h"
-#include "mdx\exception.h"
-
+#pragma warning(pop)

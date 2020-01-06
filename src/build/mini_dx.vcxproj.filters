@@ -1,21 +1,34 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="mdx.cpp" />
-    <ClCompile Include="app.cpp" />
-    <ClCompile Include="exception.cpp" />
-    <ClCompile Include="gfx.cpp" />
-    <ClCompile Include="window.cpp" />
+    <ClCompile Include="..\mdx\app.cpp" />
+    <ClCompile Include="..\mdx\exception.cpp" />
+    <ClCompile Include="..\mdx\gfx.cpp" />
+    <ClCompile Include="..\mdx\window.cpp" />
+    <ClCompile Include="mdx_pch.cpp">
+      <Filter>build</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="mdx.h" />
-    <ClInclude Include="app.h" />
-    <ClInclude Include="exception.h" />
-    <ClInclude Include="gfx.h" />
-    <ClInclude Include="types.h" />
-    <ClInclude Include="window.h" />
+    <ClInclude Include="..\mdx\app.h" />
+    <ClInclude Include="..\mdx\exception.h" />
+    <ClInclude Include="..\mdx\gfx.h" />
+    <ClInclude Include="..\mdx\types.h" />
+    <ClInclude Include="..\mdx\window.h" />
+    <ClInclude Include="mdx_pch.h">
+      <Filter>build</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mdx\platform.h" />
+    <ClInclude Include="..\mdx\core.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <Filter Include="build">
+      <UniqueIdentifier>{969fb8b8-0139-45d9-8006-89cde9c01a1d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config">
+      <Filter>build</Filter>
+    </None>
   </ItemGroup>
 </Project>
