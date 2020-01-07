@@ -32,5 +32,5 @@
 #pragma warning(push)
 //warning C4365 : 'return' : conversion from 'LONGLONG' to 'UINT64', signed / unsigned mismatch
 #pragma warning(disable: 4365)
-//#include <pix3.h>
+#include <pix3.h>
 #pragma warning(pop)
