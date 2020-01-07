@@ -7,5 +7,6 @@ add_executable(mini_dx WIN32)
 
 target_include_directories(mini_dx PRIVATE "src")
 target_compile_definitions(mini_dx PRIVATE UNICODE)
+target_compile_options(mini_dx PRIVATE /Wall /WX)
 
 add_subdirectory(src)
