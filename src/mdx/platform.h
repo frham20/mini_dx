@@ -35,12 +35,12 @@
 //warning C4365: '=': conversion from 'xxxxx' to 'yyyy', signed/unsigned mismatch
 #pragma warning(disable: 4365)
 #define D3DX12_NO_STATE_OBJECT_HELPERS
-#include <d3dx12.h>
+#include <d3dx12/d3dx12.h>
 #pragma warning(pop)
 
 //for PIX support
 #pragma warning(push)
 //warning C4365 : 'return' : conversion from 'LONGLONG' to 'UINT64', signed / unsigned mismatch
 #pragma warning(disable: 4365)
-#include <pix3.h>
+#include <WinPixEventRuntime/pix3.h>
 #pragma warning(pop)
