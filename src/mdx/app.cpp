@@ -64,6 +64,7 @@ namespace mdx
             if (!PumpThreadMessages())
                 break;
 
+            //TODO Remove
             ::SleepEx(16, TRUE);
         }
 

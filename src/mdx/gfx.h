@@ -54,7 +54,7 @@ namespace mdx
 
         HANDLE m_presentFenceEvent = INVALID_HANDLE_VALUE;
         UINT m_descriptorSizeRTV = 0;
-        uint32 m_currentFrame = 0;
+        uint64 m_currentFrame = 0;
         uint32 m_frameIndex = 0;
 
         bool m_isDebugLayerEnabled = false;

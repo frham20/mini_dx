@@ -113,8 +113,8 @@ namespace mdx
         Present();
 
         //signal that we're done with this frame
-        m_d3dPresentFence->SetEventOnCompletion(m_currentFrame, m_presentFenceEvent);
-        m_d3dGfxQueue->Signal(m_d3dPresentFence.Get(), m_currentFrame);
+        D3D_VALIDATE(m_d3dPresentFence->SetEventOnCompletion(m_currentFrame, m_presentFenceEvent));
+        D3D_VALIDATE(m_d3dGfxQueue->Signal(m_d3dPresentFence.Get(), m_currentFrame));
 
         m_currentFrame++;
         m_frameIndex = m_currentFrame & 0x1;
