@@ -48,12 +48,14 @@ namespace mdx
         Microsoft::WRL::ComPtr<ID3D12Resource> m_d3dBackBuffers[2];
         D3D12_CPU_DESCRIPTOR_HANDLE m_d3dBackBuffersRTV[2];
 
-        Microsoft::WRL::ComPtr<ID3D12CommandAllocator> m_d3dCommandAllocator;
-        Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList5> m_d3dCommandList;
+        Microsoft::WRL::ComPtr<ID3D12CommandAllocator> m_d3dCommandAllocatorsGfx[2];
+        Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList5> m_d3dCommandListGfx;
         Microsoft::WRL::ComPtr<ID3D12Fence1> m_d3dPresentFence;
 
         HANDLE m_presentFenceEvent = INVALID_HANDLE_VALUE;
         UINT m_descriptorSizeRTV = 0;
+        uint32 m_currentFrame = 0;
+        uint32 m_frameIndex = 0;
 
         bool m_isDebugLayerEnabled = false;
         bool m_isTearingSupported = false;

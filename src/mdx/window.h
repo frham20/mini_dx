@@ -11,6 +11,8 @@ namespace mdx
         void Destroy();
         void Show();
 
+        SIZE GetClientSize() const;
+
         HWND GetHandle() const;
 
     protected:
@@ -35,5 +37,10 @@ namespace mdx
     inline HWND Window::GetHandle() const
     {
         return m_handle;
+    }
+
+    inline SIZE Window::GetClientSize() const
+    {
+        return {m_width, m_height};
     }
 }

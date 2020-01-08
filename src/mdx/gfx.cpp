@@ -80,10 +80,48 @@ namespace mdx
 
     void Gfx::Frame()
     {
+        D3D_VALIDATE(m_d3dCommandAllocatorsGfx[m_frameIndex]->Reset());
+        D3D_VALIDATE(m_d3dCommandListGfx->Reset(m_d3dCommandAllocatorsGfx[m_frameIndex].Get(), nullptr));
 
+        //set root signature
+        //TODO
 
+        //set viewport and scissor rect
+        const SIZE clientSize = m_wnd->GetClientSize();
+        CD3DX12_VIEWPORT viewport(0.0f, 0.0f, static_cast<float>(clientSize.cx), static_cast<float>(clientSize.cy));
+        CD3DX12_RECT     scissorRect(0, 0, clientSize.cx, clientSize.cy);
+        m_d3dCommandListGfx->RSSetViewports(1, &viewport);
+        m_d3dCommandListGfx->RSSetScissorRects(1, &scissorRect);
+
+        //set render target
+        auto rtBarrier = CD3DX12_RESOURCE_BARRIER::Transition(m_d3dBackBuffers[m_frameIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+        m_d3dCommandListGfx->ResourceBarrier(1, &rtBarrier);
+        m_d3dCommandListGfx->OMSetRenderTargets(1, &m_d3dBackBuffersRTV[m_frameIndex], FALSE, nullptr);
+        
+        //clear render target
+        const FLOAT clearColor[] = { 1.0f, 1.0f, 0.0f, 1.0f };
+        m_d3dCommandListGfx->ClearRenderTargetView(m_d3dBackBuffersRTV[m_frameIndex], clearColor, 0, nullptr);
+
+        //finish rendering this frame and prepare to present
+        rtBarrier = CD3DX12_RESOURCE_BARRIER::Transition(m_d3dBackBuffers[m_frameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+        m_d3dCommandListGfx->ResourceBarrier(1, &rtBarrier);
+        D3D_VALIDATE(m_d3dCommandListGfx->Close());
+
+        ID3D12CommandList* commandLists[] = { m_d3dCommandListGfx.Get() };
+        m_d3dGfxQueue->ExecuteCommandLists(_countof(commandLists), commandLists);
 
         Present();
+
+        //signal that we're done with this frame
+        m_d3dPresentFence->SetEventOnCompletion(m_currentFrame, m_presentFenceEvent);
+        m_d3dGfxQueue->Signal(m_d3dPresentFence.Get(), m_currentFrame);
+
+        m_currentFrame++;
+        m_frameIndex = m_currentFrame & 0x1;
+
+        //still not done rendering with previous frame's buffer and command allocator? wait for those to be available
+        if (m_d3dPresentFence->GetCompletedValue() < (m_currentFrame - 1))
+            ::WaitForSingleObject(m_presentFenceEvent, INFINITE);
     }
 
     void Gfx::SelectBestAdapter()
@@ -100,7 +138,7 @@ namespace mdx
             m_d3dDebug->EnableDebugLayer();
         }
 
-        D3D_VALIDATE(D3D12CreateDevice(m_dxgiAdapter.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(m_d3dDevice.ReleaseAndGetAddressOf())));
+        D3D_VALIDATE(D3D12CreateDevice(m_dxgiAdapter.Get(), D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(m_d3dDevice.ReleaseAndGetAddressOf())));
 
         //setup debug device
         if (m_isDebugLayerEnabled)
@@ -203,10 +241,11 @@ namespace mdx
 
     void Gfx::CreateCommandLists()
     {
-        //create command allocator
-        D3D_VALIDATE(m_d3dDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(m_d3dCommandAllocator.ReleaseAndGetAddressOf())));
+        //create command allocators, since we're double-buffered, one command allocator per frame
+        for(int i = 0; i < _countof(m_d3dCommandAllocatorsGfx); i++)
+            D3D_VALIDATE(m_d3dDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(m_d3dCommandAllocatorsGfx[i].ReleaseAndGetAddressOf())));
 
-        //create command lists
-        D3D_VALIDATE(m_d3dDevice->CreateCommandList1(0, D3D12_COMMAND_LIST_TYPE_DIRECT, D3D12_COMMAND_LIST_FLAG_NONE, IID_PPV_ARGS(m_d3dCommandList.ReleaseAndGetAddressOf())));
+        //create command lists, only need one for now, can re-use between frames
+        D3D_VALIDATE(m_d3dDevice->CreateCommandList1(0, D3D12_COMMAND_LIST_TYPE_DIRECT, D3D12_COMMAND_LIST_FLAG_NONE, IID_PPV_ARGS(m_d3dCommandListGfx.ReleaseAndGetAddressOf())));
     }
 }
