@@ -28,6 +28,16 @@
 #include <d3d12sdklayers.h>
 #include <dxgi1_6.h>
 
+//D3DX12 helpers
+#pragma warning(push)
+//warning C4061: enumerator 'xxxxx' in switch of enum 'yyyy' is not explicitly handled by a case label
+#pragma warning(disable: 4061)
+//warning C4365: '=': conversion from 'xxxxx' to 'yyyy', signed/unsigned mismatch
+#pragma warning(disable: 4365)
+#define D3DX12_NO_STATE_OBJECT_HELPERS
+#include <d3dx12.h>
+#pragma warning(pop)
+
 //for PIX support
 #pragma warning(push)
 //warning C4365 : 'return' : conversion from 'LONGLONG' to 'UINT64', signed / unsigned mismatch

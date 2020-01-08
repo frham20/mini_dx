@@ -157,7 +157,7 @@ namespace mdx
     {
         DXGI_SWAP_CHAIN_DESC1 sd = {};
         sd.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
-        sd.BufferCount = _countof(m_d3dBackBufferRTV);
+        sd.BufferCount = _countof(m_d3dBackBuffers);
         sd.BufferUsage = DXGI_CPU_ACCESS_NONE;
         sd.Flags = m_isTearingSupported ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : static_cast<UINT>(0);
         sd.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
@@ -169,15 +169,36 @@ namespace mdx
         sd.Width = 0;
 
         DXGI_VALIDATE(m_dxgiFactory->CreateSwapChainForHwnd(m_d3dGfxQueue.Get(), m_wnd->GetHandle(), &sd, nullptr, nullptr, m_dxgiSwapChain.ReleaseAndGetAddressOf()));
-
-        //retrieve the back buffers render target views
-        for (UINT i = 0; i < sd.BufferCount; i++)
-            DXGI_VALIDATE(m_dxgiSwapChain->GetBuffer(i, IID_PPV_ARGS(m_d3dBackBufferRTV[i].ReleaseAndGetAddressOf())));
     }
 
     void Gfx::CreateRenderTargets()
     {
-        //TODO
+        //create RTV descriptor heap if needed
+        if (!m_d3dDescriptorHeapRTV)
+        {
+            D3D12_DESCRIPTOR_HEAP_DESC dhd = {};
+            dhd.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+            dhd.NumDescriptors = _countof(m_d3dBackBuffersRTV);
+            dhd.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+            dhd.NodeMask = 0;
+            D3D_VALIDATE(m_d3dDevice->CreateDescriptorHeap(&dhd, IID_PPV_ARGS(m_d3dDescriptorHeapRTV.ReleaseAndGetAddressOf())));
+            
+            m_descriptorSizeRTV = m_d3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+        }
+
+        //retrieve the back buffers
+        DXGI_SWAP_CHAIN_DESC1 sd = {};
+        DXGI_VALIDATE(m_dxgiSwapChain->GetDesc1(&sd));
+        for (UINT i = 0; i < sd.BufferCount; i++)
+            DXGI_VALIDATE(m_dxgiSwapChain->GetBuffer(i, IID_PPV_ARGS(m_d3dBackBuffers[i].ReleaseAndGetAddressOf())));
+
+        //create the RTVs
+        CD3DX12_CPU_DESCRIPTOR_HANDLE dhStart(m_d3dDescriptorHeapRTV->GetCPUDescriptorHandleForHeapStart());
+        for (UINT i = 0; i < sd.BufferCount; i++)
+        {
+            m_d3dBackBuffersRTV[i] = dhStart.Offset(static_cast<INT>(i),m_descriptorSizeRTV);
+            m_d3dDevice->CreateRenderTargetView(m_d3dBackBuffers[i].Get(), nullptr, m_d3dBackBuffersRTV[i]);
+        }
     }
 
     void Gfx::CreateCommandLists()
