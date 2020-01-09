@@ -25,6 +25,7 @@ namespace mdx
         void SelectBestAdapter();
         void CreateDeviceAndQueues();
         void CreateSwapChain();
+        void CreateDescriptorHeaps();
         void CreateRenderTargets();
         void CreateCommandLists();
         void Present();
@@ -44,16 +45,23 @@ namespace mdx
         Microsoft::WRL::ComPtr<IDXGIAdapter4> m_dxgiAdapter;
         Microsoft::WRL::ComPtr<IDXGISwapChain1> m_dxgiSwapChain;
 
-        Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_d3dDescriptorHeapRTV;       
-        Microsoft::WRL::ComPtr<ID3D12Resource> m_d3dBackBuffers[2];
-        D3D12_CPU_DESCRIPTOR_HANDLE m_d3dBackBuffersRTV[2];
+        Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_d3dDescriptorHeapRTV;
+        Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_d3dDescriptorHeapDSV;
+        UINT m_descriptorSizeRTV = 0;
+        UINT m_descriptorSizeDSV = 0;
+
+        //color and depth/stencil back buffers
+        Microsoft::WRL::ComPtr<ID3D12Resource> m_d3dBackBufferRTs[2];
+        Microsoft::WRL::ComPtr<ID3D12Resource> m_d3dBackBufferDS;
+        D3D12_CPU_DESCRIPTOR_HANDLE m_d3dBackBufferRTVs[2];
+        D3D12_CPU_DESCRIPTOR_HANDLE m_d3dBackBufferDSV;
 
         Microsoft::WRL::ComPtr<ID3D12CommandAllocator> m_d3dCommandAllocatorsGfx[2];
         Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList5> m_d3dCommandListGfx;
-        Microsoft::WRL::ComPtr<ID3D12Fence1> m_d3dPresentFence;
 
+        Microsoft::WRL::ComPtr<ID3D12Fence1> m_d3dPresentFence;
         HANDLE m_presentFenceEvent = INVALID_HANDLE_VALUE;
-        UINT m_descriptorSizeRTV = 0;
+
         uint64 m_currentFrame = 0;
         uint32 m_frameIndex = 0;
 

@@ -48,6 +48,7 @@ namespace mdx
         //handle fullscreen<->windowed transitions ourself
         DXGI_VALIDATE(m_dxgiFactory->MakeWindowAssociation(m_wnd->GetHandle(), DXGI_MWA_NO_ALT_ENTER | DXGI_MWA_NO_PRINT_SCREEN | DXGI_MWA_NO_WINDOW_CHANGES));
 
+        CreateDescriptorHeaps();
         CreateRenderTargets();
         CreateCommandLists();
     }
@@ -94,16 +95,17 @@ namespace mdx
         m_d3dCommandListGfx->RSSetScissorRects(1, &scissorRect);
 
         //set render target
-        auto rtBarrier = CD3DX12_RESOURCE_BARRIER::Transition(m_d3dBackBuffers[m_frameIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+        auto rtBarrier = CD3DX12_RESOURCE_BARRIER::Transition(m_d3dBackBufferRTs[m_frameIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
         m_d3dCommandListGfx->ResourceBarrier(1, &rtBarrier);
-        m_d3dCommandListGfx->OMSetRenderTargets(1, &m_d3dBackBuffersRTV[m_frameIndex], FALSE, nullptr);
+        m_d3dCommandListGfx->OMSetRenderTargets(1, &m_d3dBackBufferRTVs[m_frameIndex], FALSE, &m_d3dBackBufferDSV);
         
         //clear render target
         const FLOAT clearColor[] = { 1.0f, 1.0f, 0.0f, 1.0f };
-        m_d3dCommandListGfx->ClearRenderTargetView(m_d3dBackBuffersRTV[m_frameIndex], clearColor, 0, nullptr);
+        m_d3dCommandListGfx->ClearRenderTargetView(m_d3dBackBufferRTVs[m_frameIndex], clearColor, 0, nullptr);
+        m_d3dCommandListGfx->ClearDepthStencilView(m_d3dBackBufferDSV, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
         //finish rendering this frame and prepare to present
-        rtBarrier = CD3DX12_RESOURCE_BARRIER::Transition(m_d3dBackBuffers[m_frameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+        rtBarrier = CD3DX12_RESOURCE_BARRIER::Transition(m_d3dBackBufferRTs[m_frameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
         m_d3dCommandListGfx->ResourceBarrier(1, &rtBarrier);
         D3D_VALIDATE(m_d3dCommandListGfx->Close());
 
@@ -195,7 +197,7 @@ namespace mdx
     {
         DXGI_SWAP_CHAIN_DESC1 sd = {};
         sd.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
-        sd.BufferCount = _countof(m_d3dBackBuffers);
+        sd.BufferCount = _countof(m_d3dBackBufferRTs);
         sd.BufferUsage = DXGI_CPU_ACCESS_NONE;
         sd.Flags = m_isTearingSupported ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : static_cast<UINT>(0);
         sd.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
@@ -209,34 +211,63 @@ namespace mdx
         DXGI_VALIDATE(m_dxgiFactory->CreateSwapChainForHwnd(m_d3dGfxQueue.Get(), m_wnd->GetHandle(), &sd, nullptr, nullptr, m_dxgiSwapChain.ReleaseAndGetAddressOf()));
     }
 
+    void Gfx::CreateDescriptorHeaps()
+    {
+        D3D12_DESCRIPTOR_HEAP_DESC rtvdhd = {};
+        rtvdhd.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+        rtvdhd.NumDescriptors = _countof(m_d3dBackBufferRTVs);
+        rtvdhd.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+        rtvdhd.NodeMask = 0;
+        D3D_VALIDATE(m_d3dDevice->CreateDescriptorHeap(&rtvdhd, IID_PPV_ARGS(m_d3dDescriptorHeapRTV.ReleaseAndGetAddressOf())));
+
+        D3D12_DESCRIPTOR_HEAP_DESC dsdhd = {};
+        dsdhd.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+        dsdhd.NumDescriptors = 1;
+        dsdhd.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+        dsdhd.NodeMask = 0;
+        D3D_VALIDATE(m_d3dDevice->CreateDescriptorHeap(&dsdhd, IID_PPV_ARGS(m_d3dDescriptorHeapDSV.ReleaseAndGetAddressOf())));
+
+        //retrieve vendor specific descriptor handle sizes
+        m_descriptorSizeRTV = m_d3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+        m_descriptorSizeDSV = m_d3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
+    }
+
     void Gfx::CreateRenderTargets()
     {
-        //create RTV descriptor heap if needed
-        if (!m_d3dDescriptorHeapRTV)
-        {
-            D3D12_DESCRIPTOR_HEAP_DESC dhd = {};
-            dhd.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-            dhd.NumDescriptors = _countof(m_d3dBackBuffersRTV);
-            dhd.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-            dhd.NodeMask = 0;
-            D3D_VALIDATE(m_d3dDevice->CreateDescriptorHeap(&dhd, IID_PPV_ARGS(m_d3dDescriptorHeapRTV.ReleaseAndGetAddressOf())));
-            
-            m_descriptorSizeRTV = m_d3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-        }
-
         //retrieve the back buffers
         DXGI_SWAP_CHAIN_DESC1 sd = {};
         DXGI_VALIDATE(m_dxgiSwapChain->GetDesc1(&sd));
+        assert(sd.BufferCount == _countof(m_d3dBackBufferRTs));
         for (UINT i = 0; i < sd.BufferCount; i++)
-            DXGI_VALIDATE(m_dxgiSwapChain->GetBuffer(i, IID_PPV_ARGS(m_d3dBackBuffers[i].ReleaseAndGetAddressOf())));
+            DXGI_VALIDATE(m_dxgiSwapChain->GetBuffer(i, IID_PPV_ARGS(m_d3dBackBufferRTs[i].ReleaseAndGetAddressOf())));
 
         //create the RTVs
-        CD3DX12_CPU_DESCRIPTOR_HANDLE dhStart(m_d3dDescriptorHeapRTV->GetCPUDescriptorHandleForHeapStart());
+        CD3DX12_CPU_DESCRIPTOR_HANDLE rtdhStart(m_d3dDescriptorHeapRTV->GetCPUDescriptorHandleForHeapStart());
         for (UINT i = 0; i < sd.BufferCount; i++)
         {
-            m_d3dBackBuffersRTV[i] = dhStart.Offset(static_cast<INT>(i),m_descriptorSizeRTV);
-            m_d3dDevice->CreateRenderTargetView(m_d3dBackBuffers[i].Get(), nullptr, m_d3dBackBuffersRTV[i]);
+            m_d3dBackBufferRTVs[i] = rtdhStart.Offset(static_cast<INT>(i),m_descriptorSizeRTV);
+            m_d3dDevice->CreateRenderTargetView(m_d3dBackBufferRTs[i].Get(), nullptr, m_d3dBackBufferRTVs[i]);
         }
+
+        //create depth/stencil buffer
+        D3D12_CLEAR_VALUE cv = {};
+        cv.DepthStencil.Depth = 1.0f;
+        cv.DepthStencil.Stencil = 0;
+        cv.Format = DXGI_FORMAT_D32_FLOAT;
+
+        auto colorBufferDesc = m_d3dBackBufferRTs[0]->GetDesc();
+        auto dsHeapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+        auto dsResourceDesc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT, 
+                                            colorBufferDesc.Width, colorBufferDesc.Height, 
+                                            1, 1, 
+                                            1, 0, 
+                                            D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
+        D3D_VALIDATE(m_d3dDevice->CreateCommittedResource1(&dsHeapProperties, D3D12_HEAP_FLAG_NONE, &dsResourceDesc, D3D12_RESOURCE_STATE_DEPTH_WRITE, &cv, nullptr, IID_PPV_ARGS(m_d3dBackBufferDS.ReleaseAndGetAddressOf())));
+
+        //create the DSV
+        CD3DX12_CPU_DESCRIPTOR_HANDLE dsdhStart(m_d3dDescriptorHeapDSV->GetCPUDescriptorHandleForHeapStart());
+        m_d3dBackBufferDSV = dsdhStart.Offset(0, m_descriptorSizeDSV);
+        m_d3dDevice->CreateDepthStencilView(m_d3dBackBufferDS.Get(), nullptr, m_d3dBackBufferDSV);
     }
 
     void Gfx::CreateCommandLists()
