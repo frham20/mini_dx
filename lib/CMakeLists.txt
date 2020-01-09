@@ -2,6 +2,10 @@
 add_library(d3dx12 INTERFACE IMPORTED GLOBAL)
 target_include_directories(d3dx12 INTERFACE "d3dx12/include")
 
+# DirectXMath header only library
+add_library(DirectXMath INTERFACE IMPORTED GLOBAL)
+target_include_directories(DirectXMath BEFORE INTERFACE "DirectXMath/Inc")
+
 # WinPixEventRuntime library
 add_library(WinPixEventRuntime SHARED IMPORTED GLOBAL)
 target_include_directories(WinPixEventRuntime INTERFACE "WinPixEventRuntime/include")
