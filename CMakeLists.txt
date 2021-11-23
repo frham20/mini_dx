@@ -10,11 +10,13 @@ set_target_properties(mini_dx
 		ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
 		LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
 		RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+		CXX_STANDARD 20
 	)
 
 target_include_directories(mini_dx PRIVATE "src")
 target_compile_definitions(mini_dx PRIVATE UNICODE)
 target_compile_options(mini_dx PRIVATE /Wall /WX)
+
 
 # Add Pix NuGet package
 #    set_target_properties(mini_dx PROPERTIES VS_PACKAGE_REFERENCES "WinPixEventRuntime_1.0.190604001")

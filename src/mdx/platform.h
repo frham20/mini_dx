@@ -29,6 +29,7 @@
 #pragma warning(push)
 #pragma warning(disable: 4061) //warning C4061: enumerator 'xxxxx' in switch of enum 'yyyy' is not explicitly handled by a case label
 #pragma warning(disable: 4365) //warning C4365: '=': conversion from 'xxxxx' to 'yyyy', signed/unsigned mismatch
+#pragma warning(disable: 5219) // warning C5219: implicit conversion from 'xxx' to 'yyyy', possible loss of data
 #define D3DX12_NO_STATE_OBJECT_HELPERS
 #include <d3dx12/d3dx12.h>
 #pragma warning(pop)
